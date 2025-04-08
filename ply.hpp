@@ -30,7 +30,10 @@ namespace FPCFilter {
 		float ny;
 		float nz;
 
-		PlyExtra(float nx, float ny, float nz) : nx(nx), ny(ny), nz(nz) {}
+		uint8_t segmentation;
+		float segmentationConfidence;
+
+		PlyExtra(float nx, float ny, float nz, uint8_t segmentation, float segmentationConfidence) : nx(nx), ny(ny), nz(nz), segmentation(segmentation), segmentationConfidence(segmentationConfidence) {}
 	};
 
 	class PlyFile {
@@ -195,6 +198,8 @@ namespace FPCFilter {
 					property float32 nx
 					property float32 ny
 					property float32 nz
+					property uint8 segmentation
+					property float32 segmentationConfidence
 					property uint8 views
 					end_header
 				*/
@@ -239,6 +244,14 @@ namespace FPCFilter {
 					throw std::invalid_argument("Invalid PLY file (expected 'property float32 nz')");
 
 				std::getline(reader, line);
+				if (line != "property uint8 segmentation")
+					throw std::invalid_argument("Invalid PLY file (expected 'property uint8 segmentation')");
+
+				std::getline(reader, line);
+				if (line != "property float32 segmentationConfidence")
+					throw std::invalid_argument("Invalid PLY file (expected 'property float32 segmentationConfidence')");
+
+				std::getline(reader, line);
 				if (line != "property uint8 views")
 					throw std::invalid_argument("Invalid PLY file (expected 'property uint8 views')");
 
@@ -262,6 +275,8 @@ namespace FPCFilter {
 						float x, y, z;
 						float nx, ny, nz;
 						uint8_t red, green, blue;
+						uint8_t segmentation;
+						float segmentationConfidence;
 						uint8_t views;
 
 						reader.read(reinterpret_cast<char*>(&x), sizeof(float));
@@ -276,11 +291,14 @@ namespace FPCFilter {
 						reader.read(reinterpret_cast<char*>(&ny), sizeof(float));
 						reader.read(reinterpret_cast<char*>(&nz), sizeof(float));
 
+						reader.read(reinterpret_cast<char*>(&segmentation), sizeof(uint8_t));
+						reader.read(reinterpret_cast<char*>(&segmentationConfidence), sizeof(float));
+
 						reader.read(reinterpret_cast<char*>(&views), sizeof(uint8_t));
 
 						if (filter(x, y, z)) {
 							points.emplace_back(x, y, z, red, green, blue, views);
-							extras.emplace_back(nx, ny, nz);
+							extras.emplace_back(nx, ny, nz, segmentation, segmentationConfidence);
 						}
 					}
 
@@ -307,10 +325,13 @@ namespace FPCFilter {
 						reader.read(reinterpret_cast<char*>(&ny), sizeof(float));
 						reader.read(reinterpret_cast<char*>(&nz), sizeof(float));
 
+						reader.read(reinterpret_cast<char*>(&segmentation), sizeof(uint8_t));
+						reader.read(reinterpret_cast<char*>(&segmentationConfidence), sizeof(float));
+
 						reader.read(reinterpret_cast<char*>(&views), sizeof(uint8_t));
 
 						points.emplace_back(x, y, z, red, green, blue, views);
-						extras.emplace_back(nx, ny, nz);
+						extras.emplace_back(nx, ny, nz, segmentation, segmentationConfidence);
 
 					}
 				}
@@ -342,6 +363,8 @@ namespace FPCFilter {
 				o << "property float nx" << std::endl;
 				o << "property float ny" << std::endl;
 				o << "property float nz" << std::endl;
+				o << "property uchar segmentation" << std::endl;
+				o << "property float segmentationConfidence" << std::endl;
 			}
 
 			o << "property uchar red" << std::endl;
@@ -365,6 +388,9 @@ namespace FPCFilter {
                     o.write(reinterpret_cast<const char*>(&extra.nx), sizeof(float));
                     o.write(reinterpret_cast<const char*>(&extra.ny), sizeof(float));
                     o.write(reinterpret_cast<const char*>(&extra.nz), sizeof(float));
+
+					o.write(reinterpret_cast<const char*>(&extra.segmentation), sizeof(uint8_t));
+					o.write(reinterpret_cast<const char*>(&extra.segmentationConfidence), sizeof(float));
 
                     o.write(reinterpret_cast<const char*>(&point.red), sizeof(uint8_t));
                     o.write(reinterpret_cast<const char*>(&point.blue), sizeof(uint8_t));

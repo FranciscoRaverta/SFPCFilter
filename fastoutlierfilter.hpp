@@ -248,7 +248,7 @@ namespace FPCFilter {
                         const auto xs = file.extras[i];
 
                         newPoints.emplace_back(pt.x, pt.y, pt.z, pt.red, pt.green, pt.blue, pt.views);
-                        newExtras.emplace_back(xs.nx, xs.ny, xs.nz);
+                        newExtras.emplace_back(xs.nx, xs.ny, xs.nz, xs.segmentation, xs.segmentationConfidence);
                     } 
                     
                 }
