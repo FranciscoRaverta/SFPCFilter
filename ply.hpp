@@ -310,6 +310,8 @@ namespace FPCFilter {
 
 						float x, y, z;
 						float nx, ny, nz;
+						uint8_t segmentation;
+						float segmentationConfidence;
 						uint8_t red, green, blue;
 						uint8_t views;
 
