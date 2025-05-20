@@ -115,6 +115,7 @@ namespace FPCFilter {
 					end_header
 				*/
 
+				std::cout << "Case1" << std::endl;
 				const auto vertexLine = getVertexLine(reader);
 				const auto count = getVertexCount(vertexLine);
 
@@ -153,6 +154,7 @@ namespace FPCFilter {
 				points.reserve(count);
 
 				if (filter) {
+					std::cout << "Case1-filter" << std::endl;
 
 					// Read points
 					for (auto i = 0; i < count; i++) {
@@ -168,7 +170,7 @@ namespace FPCFilter {
 					}
 				}
 				else {
-
+					std::cout << "Case1-non-filter" << std::endl;
 					// Read points
 					for (auto i = 0; i < count; i++) {
 
@@ -203,6 +205,7 @@ namespace FPCFilter {
 					property uint8 views
 					end_header
 				*/
+				std::cout << "Case2" << std::endl;
 
 				const auto vertexLine = getVertexLine(reader);
 				const auto count = getVertexCount(vertexLine);
@@ -268,6 +271,7 @@ namespace FPCFilter {
 				extras.reserve(count);
 
 				if (filter) {
+					std::cout << "Case2-filter" << std::endl;
 
 					// Read points
 					for (auto i = 0; i < count; i++) {
@@ -304,6 +308,7 @@ namespace FPCFilter {
 
 				}
 				else {
+					std::cout << "Case2-non-filter" << std::endl;
 
 					// Read points
 					for (auto i = 0; i < count; i++) {
@@ -365,9 +370,9 @@ namespace FPCFilter {
 				o << "property float nx" << std::endl;
 				o << "property float ny" << std::endl;
 				o << "property float nz" << std::endl;
-				o << "property uchar segmentation" << std::endl;
-				o << "property float segmentationConfidence" << std::endl;
 			}
+			o << "property uchar segmentation" << std::endl;
+			o << "property float segmentationConfidence" << std::endl;
 
 			o << "property uchar red" << std::endl;
 			o << "property uchar blue" << std::endl;
@@ -378,6 +383,7 @@ namespace FPCFilter {
 
 			if (hasNormals)
 			{
+				std::cout << "Write-has-normals" << std::endl;
 				for (auto n = 0; n < cnt; n++)
 				{
 					const auto point = this->points[n];
@@ -404,6 +410,7 @@ namespace FPCFilter {
 
 			} else
 			{
+				std::cout << "Write-has-no-normals" << std::endl;
 				for (auto n = 0; n < cnt; n++)
 				{
 					const auto point = this->points[n];
