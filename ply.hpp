@@ -488,6 +488,7 @@ namespace FPCFilter {
 				{
 					const auto point = this->points[n];
 					const auto extra = this->extras[n];
+					const auto segment = this->segments[n];
 
                     o.write(reinterpret_cast<const char*>(&point.x), sizeof(float));
                     o.write(reinterpret_cast<const char*>(&point.y), sizeof(float));
@@ -497,8 +498,8 @@ namespace FPCFilter {
                     o.write(reinterpret_cast<const char*>(&extra.ny), sizeof(float));
                     o.write(reinterpret_cast<const char*>(&extra.nz), sizeof(float));
 
-					o.write(reinterpret_cast<const char*>(&extra.segmentation), sizeof(uint8_t));
-					o.write(reinterpret_cast<const char*>(&extra.segmentationConfidence), sizeof(float));
+					o.write(reinterpret_cast<const char*>(&segment.segmentation), sizeof(uint8_t));
+					o.write(reinterpret_cast<const char*>(&segment.segmentationConfidence), sizeof(float));
 
                     o.write(reinterpret_cast<const char*>(&point.red), sizeof(uint8_t));
                     o.write(reinterpret_cast<const char*>(&point.blue), sizeof(uint8_t));
@@ -535,13 +536,14 @@ namespace FPCFilter {
 				for (auto n = 0; n < cnt; n++)
 				{
 					const auto point = this->points[n];
+					const auto segment = this->segments[n];
 
                     o.write(reinterpret_cast<const char*>(&point.x), sizeof(float));
                     o.write(reinterpret_cast<const char*>(&point.y), sizeof(float));
                     o.write(reinterpret_cast<const char*>(&point.z), sizeof(float));
 
-					o.write(reinterpret_cast<const char*>(&extra.segmentation), sizeof(uint8_t));
-					o.write(reinterpret_cast<const char*>(&extra.segmentationConfidence), sizeof(float));
+					o.write(reinterpret_cast<const char*>(&segment.segmentation), sizeof(uint8_t));
+					o.write(reinterpret_cast<const char*>(&segment.segmentationConfidence), sizeof(float));
 
                     o.write(reinterpret_cast<const char*>(&point.red), sizeof(uint8_t));
                     o.write(reinterpret_cast<const char*>(&point.blue), sizeof(uint8_t));
