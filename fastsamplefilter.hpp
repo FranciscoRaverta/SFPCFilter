@@ -164,7 +164,7 @@ namespace FPCFilter {
                 std::vector<PlySegment> tmpSegments;
                 tmpSegments.reserve(cnt / omp_get_max_threads());
 
-                #pragma omp parallel private (tmpPoints, tmpExtras, tmpSegments)
+                #pragma omp parallel private (tmpPoints, tmpSegments)
                 {
                     #pragma omp for
                     for (auto n = 0; n < cnt; n++) {
