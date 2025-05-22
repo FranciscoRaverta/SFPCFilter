@@ -40,6 +40,7 @@ namespace FPCFilter {
             
             auto points = file.points;
             auto extras = file.extras;
+            auto segments = file.segments;
             
             const auto cnt = points.size();
 
@@ -47,12 +48,13 @@ namespace FPCFilter {
                 return;
             
             const auto hasNormals = file.hasNormals();
+            const auto hasSegments = file.hasSegments();
 
             originX = points[0].x;
             originY = points[0].y;
             originZ = points[0].z;
 
-            if (hasNormals) {
+            if (hasNormals && !hasSegments) {
 
                 std::vector<PlyPoint> newPoints;
                 newPoints.reserve(cnt);
@@ -94,6 +96,103 @@ namespace FPCFilter {
 
                 file.points = newPoints;
                 file.extras = newExtras;
+            
+            } else if (hasNormals && hasSegments) {
+
+                std::vector<PlyPoint> newPoints;
+                newPoints.reserve(cnt);
+
+                std::vector<PlyExtra> newExtras;
+                newExtras.reserve(cnt);
+
+                std::vector<PlySegment> newSegments;
+                newSegments.reserve(cnt);
+
+                std::vector<PlyPoint> tmpPoints;
+                tmpPoints.reserve(cnt / omp_get_max_threads());
+                std::vector<PlyExtra> tmpExtras;
+                tmpExtras.reserve(cnt / omp_get_max_threads());
+                std::vector<PlySegment> tmpSegments;
+                tmpSegments.reserve(cnt / omp_get_max_threads());
+
+                #pragma omp parallel private (tmpPoints, tmpExtras, tmpSegments)
+                {
+                    #pragma omp for
+                    for (auto n = 0; n < cnt; n++) {
+
+                        const auto& point = points[n];
+                        const auto& extra = extras[n];
+                        const auto& segment = segments[n];
+
+                        if (this->safe_voxelize(point)) {
+                            tmpPoints.push_back(point);
+                            tmpExtras.push_back(extra);
+                            tmpSegments.push_back(segment);
+                        }
+                    }
+
+                    #pragma omp critical
+                    {
+                        if (this->isVerbose)
+                            log << " ?> Sampled " << tmpPoints.size() << " points in thread " << omp_get_thread_num() << std::endl;
+
+                        newPoints.insert(newPoints.end(), tmpPoints.begin(), tmpPoints.end());
+                        newExtras.insert(newExtras.end(), tmpExtras.begin(), tmpExtras.end());
+                        newSegments.insert(newSegments.end(), tmpSegments.begin(), tmpSegments.end());
+                    }
+                }
+
+                newPoints.shrink_to_fit();
+                newExtras.shrink_to_fit();
+                newSegments.shrink_to_fit();
+
+                file.points = newPoints;
+                file.extras = newExtras;
+                file.segments = newSegments;
+
+
+            } else if (!hasNormals && hasSegments) {
+
+                std::vector<PlyPoint> newPoints;
+                newPoints.reserve(cnt);
+
+                std::vector<PlySegment> newSegments;
+                newSegments.reserve(cnt);
+
+                std::vector<PlyPoint> tmpPoints;
+                tmpPoints.reserve(cnt / omp_get_max_threads());
+                std::vector<PlySegment> tmpSegments;
+                tmpSegments.reserve(cnt / omp_get_max_threads());
+
+                #pragma omp parallel private (tmpPoints, tmpExtras, tmpSegments)
+                {
+                    #pragma omp for
+                    for (auto n = 0; n < cnt; n++) {
+
+                        const auto& point = points[n];
+                        const auto& segment = segments[n];
+
+                        if (this->safe_voxelize(point)) {
+                            tmpPoints.push_back(point);
+                            tmpSegments.push_back(segment);
+                        }
+                    }
+
+                    #pragma omp critical
+                    {
+                        if (this->isVerbose)
+                            log << " ?> Sampled " << tmpPoints.size() << " points in thread " << omp_get_thread_num() << std::endl;
+
+                        newPoints.insert(newPoints.end(), tmpPoints.begin(), tmpPoints.end());
+                        newSegments.insert(newSegments.end(), tmpSegments.begin(), tmpSegments.end());
+                    }
+                }
+
+                newPoints.shrink_to_fit();
+                newSegments.shrink_to_fit();
+
+                file.points = newPoints;
+                file.segments = newSegments;
 
             } else {
 

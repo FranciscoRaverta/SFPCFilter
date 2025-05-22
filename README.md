@@ -1,4 +1,6 @@
-# FPCFilter (Fast Point Cloud Filtering)
+# SFPCFilter (Segmented Fast Point Cloud Filtering)
+
+Modified version of the FPCFilter to consider semantic segmentation values in the Point Cloud Filtering. Used in the SODM. 
 
 **FPCFilter** performs 3 types of processes: Crop, Sample and Filter. 
 
@@ -48,9 +50,26 @@ property uint8 blue
 property float32 nx
 property float32 ny
 property float32 nz
+property uint8 segmentation
+property float32 segmentationConfidence
 property uint8 views
 end_header
 ```
+if the source has the segmentation (`segmentation`) and confidence (`segmentationConfidence`), or 
+```
+property float32 x
+property float32 y
+property float32 z
+property uint8 red
+property uint8 green
+property uint8 blue
+property float32 nx
+property float32 ny
+property float32 nz
+property uint8 views
+end_header
+```
+without them
 
 and `ascii` with header
 
@@ -73,7 +92,9 @@ property float y
 property float z
 property float nx
 property float ny
-property float nz			
+property float nz
+property uchar segmentation
+property float segmentationConfidence			
 property uchar red
 property uchar blue
 property uchar green
@@ -81,7 +102,7 @@ property uchar views
 end_header
 ```
 
-without `nx`, `ny` and `nz` if the source file has not got them.
+without `nx`, `ny`, `nz`, `segmentation` or `segmentationConfidence` if the source file has not got them.
 
 -----------------------------------------------------------------------
 

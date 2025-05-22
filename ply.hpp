@@ -33,7 +33,15 @@ namespace FPCFilter {
 		uint8_t segmentation;
 		float segmentationConfidence;
 
-		PlyExtra(float nx, float ny, float nz, uint8_t segmentation, float segmentationConfidence) : nx(nx), ny(ny), nz(nz), segmentation(segmentation), segmentationConfidence(segmentationConfidence) {}
+		PlyExtra(float nx, float ny, float nz) : nx(nx), ny(ny), nz(nz) {}
+	};
+
+	class PlySegment {
+	public:
+		uint8_t segmentation;
+		float segmentationConfidence;
+
+		PlySegment(uint8_t segmentation, float segmentationConfidence) : segmentation(segmentation), segmentationConfidence(segmentationConfidence) {}
 	};
 
 	class PlyFile {
@@ -79,10 +87,15 @@ namespace FPCFilter {
 	public:
 		std::vector<PlyExtra> extras;
 		std::vector<PlyPoint> points;
+		std::vector<PlySegment> segments;
 
         bool hasNormals() {
             return !extras.empty();
         }
+
+		bool hasSegments() {
+			return !segments.empty();
+		}
 
 		PlyFile(const std::string& path, const std::function<bool(const float x, const float y, const float z)> filter = nullptr) {
 
@@ -115,7 +128,6 @@ namespace FPCFilter {
 					end_header
 				*/
 
-				std::cout << "Case1" << std::endl;
 				const auto vertexLine = getVertexLine(reader);
 				const auto count = getVertexCount(vertexLine);
 
@@ -154,8 +166,6 @@ namespace FPCFilter {
 				points.reserve(count);
 
 				if (filter) {
-					std::cout << "Case1-filter" << std::endl;
-
 					// Read points
 					for (auto i = 0; i < count; i++) {
 
@@ -170,7 +180,6 @@ namespace FPCFilter {
 					}
 				}
 				else {
-					std::cout << "Case1-non-filter" << std::endl;
 					// Read points
 					for (auto i = 0; i < count; i++) {
 
@@ -205,10 +214,11 @@ namespace FPCFilter {
 					property uint8 views
 					end_header
 				*/
-				std::cout << "Case2" << std::endl;
 
 				const auto vertexLine = getVertexLine(reader);
 				const auto count = getVertexCount(vertexLine);
+
+				bool hasSegmentationValues = false;
 
 				std::getline(reader, line);
 				if (line != "property float32 x")
@@ -247,102 +257,188 @@ namespace FPCFilter {
 					throw std::invalid_argument("Invalid PLY file (expected 'property float32 nz')");
 
 				std::getline(reader, line);
-				if (line != "property uint8 segmentation")
-					throw std::invalid_argument("Invalid PLY file (expected 'property uint8 segmentation')");
+				if (line == "property uint8 segmentation") 
+				{
+					hasSegmentationValues = true; 
+				} else if (line == "property uint8 views")
+				{
+					hasSegmentationValues = false;
+				} else {
+					throw std::invalid_argument("Invalid PLY file (expected 'property uint8 views' or 'property uint8 segmentation')");
+				}
 
-				std::getline(reader, line);
-				if (line != "property float32 segmentationConfidence")
-					throw std::invalid_argument("Invalid PLY file (expected 'property float32 segmentationConfidence')");
-
-				std::getline(reader, line);
-				if (line != "property uint8 views")
-					throw std::invalid_argument("Invalid PLY file (expected 'property uint8 views')");
-
-				std::getline(reader, line);
-				if (line != "end_header")
-					throw std::invalid_argument("Invalid PLY file (expected 'end_header')");
-
-				reader = std::ifstream(path, std::ifstream::binary);
-				
-				for (auto n = 0; n < 16; n++)
+				if (hasSegmentationValues) 
+				{
 					std::getline(reader, line);
+					if (line != "property float32 segmentationConfidence")
+						throw std::invalid_argument("Invalid PLY file (expected 'property float32 segmentationConfidence')");
 
-				points.reserve(count);
-				extras.reserve(count);
+					std::getline(reader, line);
+					if (line != "property uint8 views")
+						throw std::invalid_argument("Invalid PLY file (expected 'property uint8 views')");
 
-				if (filter) {
-					std::cout << "Case2-filter" << std::endl;
+					std::getline(reader, line);
+					if (line != "end_header")
+						throw std::invalid_argument("Invalid PLY file (expected 'end_header')");
 
-					// Read points
-					for (auto i = 0; i < count; i++) {
+					reader = std::ifstream(path, std::ifstream::binary);
+				
+					for (auto n = 0; n < 16; n++)
+						std::getline(reader, line);
 
-						float x, y, z;
-						float nx, ny, nz;
-						uint8_t red, green, blue;
-						uint8_t segmentation;
-						float segmentationConfidence;
-						uint8_t views;
+					points.reserve(count);
+					extras.reserve(count);
+					segments.reserve(count);
 
-						reader.read(reinterpret_cast<char*>(&x), sizeof(float));
-						reader.read(reinterpret_cast<char*>(&y), sizeof(float));
-						reader.read(reinterpret_cast<char*>(&z), sizeof(float));
+					if (filter) {
 
-						reader.read(reinterpret_cast<char*>(&red), sizeof(uint8_t));
-						reader.read(reinterpret_cast<char*>(&green), sizeof(uint8_t));
-						reader.read(reinterpret_cast<char*>(&blue), sizeof(uint8_t));
+						// Read points
+						for (auto i = 0; i < count; i++) {
 
-						reader.read(reinterpret_cast<char*>(&nx), sizeof(float));
-						reader.read(reinterpret_cast<char*>(&ny), sizeof(float));
-						reader.read(reinterpret_cast<char*>(&nz), sizeof(float));
+							float x, y, z;
+							float nx, ny, nz;
+							uint8_t red, green, blue;
+							uint8_t segmentation;
+							float segmentationConfidence;
+							uint8_t views;
 
-						reader.read(reinterpret_cast<char*>(&segmentation), sizeof(uint8_t));
-						reader.read(reinterpret_cast<char*>(&segmentationConfidence), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&x), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&y), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&z), sizeof(float));
 
-						reader.read(reinterpret_cast<char*>(&views), sizeof(uint8_t));
+							reader.read(reinterpret_cast<char*>(&red), sizeof(uint8_t));
+							reader.read(reinterpret_cast<char*>(&green), sizeof(uint8_t));
+							reader.read(reinterpret_cast<char*>(&blue), sizeof(uint8_t));
 
-						if (filter(x, y, z)) {
+							reader.read(reinterpret_cast<char*>(&nx), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&ny), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&nz), sizeof(float));
+
+							reader.read(reinterpret_cast<char*>(&segmentation), sizeof(uint8_t));
+							reader.read(reinterpret_cast<char*>(&segmentationConfidence), sizeof(float));
+
+							reader.read(reinterpret_cast<char*>(&views), sizeof(uint8_t));
+
+							if (filter(x, y, z)) {
+								points.emplace_back(x, y, z, red, green, blue, views);
+								extras.emplace_back(nx, ny, nz);
+								segments.emplace_back(segmentation, segmentationConfidence);
+							}
+						}
+
+					}
+					else {
+
+						// Read points
+						for (auto i = 0; i < count; i++) {
+
+							float x, y, z;
+							float nx, ny, nz;
+							uint8_t segmentation;
+							float segmentationConfidence;
+							uint8_t red, green, blue;
+							uint8_t views;
+
+							reader.read(reinterpret_cast<char*>(&x), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&y), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&z), sizeof(float));
+
+							reader.read(reinterpret_cast<char*>(&red), sizeof(uint8_t));
+							reader.read(reinterpret_cast<char*>(&green), sizeof(uint8_t));
+							reader.read(reinterpret_cast<char*>(&blue), sizeof(uint8_t));
+
+							reader.read(reinterpret_cast<char*>(&nx), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&ny), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&nz), sizeof(float));
+
+							reader.read(reinterpret_cast<char*>(&segmentation), sizeof(uint8_t));
+							reader.read(reinterpret_cast<char*>(&segmentationConfidence), sizeof(float));
+
+							reader.read(reinterpret_cast<char*>(&views), sizeof(uint8_t));
+
 							points.emplace_back(x, y, z, red, green, blue, views);
-							extras.emplace_back(nx, ny, nz, segmentation, segmentationConfidence);
+							extras.emplace_back(nx, ny, nz);
+							segments.emplace_back(segmentation, segmentationConfidence);
+
 						}
 					}
+					
+				} else {
+					std::getline(reader, line);
+					if (line != "end_header")
+						throw std::invalid_argument("Invalid PLY file (expected 'end_header')");
 
-				}
-				else {
-					std::cout << "Case2-non-filter" << std::endl;
+					reader = std::ifstream(path, std::ifstream::binary);
+				
+					for (auto n = 0; n < 16; n++)
+						std::getline(reader, line);
 
-					// Read points
-					for (auto i = 0; i < count; i++) {
+					points.reserve(count);
+					extras.reserve(count);
+					segments.reserve(count);
 
-						float x, y, z;
-						float nx, ny, nz;
-						uint8_t segmentation;
-						float segmentationConfidence;
-						uint8_t red, green, blue;
-						uint8_t views;
+					if (filter) {
 
-						reader.read(reinterpret_cast<char*>(&x), sizeof(float));
-						reader.read(reinterpret_cast<char*>(&y), sizeof(float));
-						reader.read(reinterpret_cast<char*>(&z), sizeof(float));
+						// Read points
+						for (auto i = 0; i < count; i++) {
 
-						reader.read(reinterpret_cast<char*>(&red), sizeof(uint8_t));
-						reader.read(reinterpret_cast<char*>(&green), sizeof(uint8_t));
-						reader.read(reinterpret_cast<char*>(&blue), sizeof(uint8_t));
+							float x, y, z;
+							float nx, ny, nz;
+							uint8_t red, green, blue;
+							uint8_t views;
 
-						reader.read(reinterpret_cast<char*>(&nx), sizeof(float));
-						reader.read(reinterpret_cast<char*>(&ny), sizeof(float));
-						reader.read(reinterpret_cast<char*>(&nz), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&x), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&y), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&z), sizeof(float));
 
-						reader.read(reinterpret_cast<char*>(&segmentation), sizeof(uint8_t));
-						reader.read(reinterpret_cast<char*>(&segmentationConfidence), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&red), sizeof(uint8_t));
+							reader.read(reinterpret_cast<char*>(&green), sizeof(uint8_t));
+							reader.read(reinterpret_cast<char*>(&blue), sizeof(uint8_t));
 
-						reader.read(reinterpret_cast<char*>(&views), sizeof(uint8_t));
+							reader.read(reinterpret_cast<char*>(&nx), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&ny), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&nz), sizeof(float));
 
-						points.emplace_back(x, y, z, red, green, blue, views);
-						extras.emplace_back(nx, ny, nz, segmentation, segmentationConfidence);
+							reader.read(reinterpret_cast<char*>(&views), sizeof(uint8_t));
+
+							if (filter(x, y, z)) {
+								points.emplace_back(x, y, z, red, green, blue, views);
+								extras.emplace_back(nx, ny, nz);
+							}
+						}
 
 					}
-				}
+					else {
 
+						// Read points
+						for (auto i = 0; i < count; i++) {
+
+							float x, y, z;
+							float nx, ny, nz;
+							uint8_t red, green, blue;
+							uint8_t views;
+
+							reader.read(reinterpret_cast<char*>(&x), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&y), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&z), sizeof(float));
+
+							reader.read(reinterpret_cast<char*>(&red), sizeof(uint8_t));
+							reader.read(reinterpret_cast<char*>(&green), sizeof(uint8_t));
+							reader.read(reinterpret_cast<char*>(&blue), sizeof(uint8_t));
+
+							reader.read(reinterpret_cast<char*>(&nx), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&ny), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&nz), sizeof(float));
+
+							reader.read(reinterpret_cast<char*>(&views), sizeof(uint8_t));
+
+							points.emplace_back(x, y, z, red, green, blue, views);
+							extras.emplace_back(nx, ny, nz);
+
+						}
+					}
+				}
+				
 			} else
 				throw std::invalid_argument("Invalid PLY file");
 					
@@ -364,6 +460,7 @@ namespace FPCFilter {
 			o << "property float z" << std::endl;
 
 			const auto hasNormals = this->hasNormals();
+			const auto hasSegments = this->hasSegments();
 
 			if (hasNormals)
 			{
@@ -371,9 +468,13 @@ namespace FPCFilter {
 				o << "property float ny" << std::endl;
 				o << "property float nz" << std::endl;
 			}
-			o << "property uchar segmentation" << std::endl;
-			o << "property float segmentationConfidence" << std::endl;
 
+			if (hasSegments)
+			{
+				o << "property uchar segmentation" << std::endl;
+				o << "property float segmentationConfidence" << std::endl;
+			}
+			
 			o << "property uchar red" << std::endl;
 			o << "property uchar blue" << std::endl;
 			o << "property uchar green" << std::endl;
@@ -381,9 +482,8 @@ namespace FPCFilter {
 
 			o << "end_header" << std::endl;
 
-			if (hasNormals)
+			if (hasNormals && hasSegments)
 			{
-				std::cout << "Write-has-normals" << std::endl;
 				for (auto n = 0; n < cnt; n++)
 				{
 					const auto point = this->points[n];
@@ -408,9 +508,51 @@ namespace FPCFilter {
 
 				}
 
-			} else
+			} else if (hasNormals && !hasSegments)
 			{
-				std::cout << "Write-has-no-normals" << std::endl;
+				for (auto n = 0; n < cnt; n++)
+				{
+					const auto point = this->points[n];
+					const auto extra = this->extras[n];
+
+                    o.write(reinterpret_cast<const char*>(&point.x), sizeof(float));
+                    o.write(reinterpret_cast<const char*>(&point.y), sizeof(float));
+                    o.write(reinterpret_cast<const char*>(&point.z), sizeof(float));
+
+                    o.write(reinterpret_cast<const char*>(&extra.nx), sizeof(float));
+                    o.write(reinterpret_cast<const char*>(&extra.ny), sizeof(float));
+                    o.write(reinterpret_cast<const char*>(&extra.nz), sizeof(float));
+
+                    o.write(reinterpret_cast<const char*>(&point.red), sizeof(uint8_t));
+                    o.write(reinterpret_cast<const char*>(&point.blue), sizeof(uint8_t));
+                    o.write(reinterpret_cast<const char*>(&point.green), sizeof(uint8_t));
+
+                    o.write(reinterpret_cast<const char*>(&point.views), sizeof(uint8_t));
+
+				}
+			} else if (!hasNormals && hasSegments)
+			{
+				for (auto n = 0; n < cnt; n++)
+				{
+					const auto point = this->points[n];
+
+                    o.write(reinterpret_cast<const char*>(&point.x), sizeof(float));
+                    o.write(reinterpret_cast<const char*>(&point.y), sizeof(float));
+                    o.write(reinterpret_cast<const char*>(&point.z), sizeof(float));
+
+					o.write(reinterpret_cast<const char*>(&extra.segmentation), sizeof(uint8_t));
+					o.write(reinterpret_cast<const char*>(&extra.segmentationConfidence), sizeof(float));
+
+                    o.write(reinterpret_cast<const char*>(&point.red), sizeof(uint8_t));
+                    o.write(reinterpret_cast<const char*>(&point.blue), sizeof(uint8_t));
+                    o.write(reinterpret_cast<const char*>(&point.green), sizeof(uint8_t));
+
+                    o.write(reinterpret_cast<const char*>(&point.views), sizeof(uint8_t));
+
+				}
+			}
+			else
+			{
 				for (auto n = 0; n < cnt; n++)
 				{
 					const auto point = this->points[n];

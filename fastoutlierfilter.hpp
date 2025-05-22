@@ -171,6 +171,9 @@ namespace FPCFilter {
             std::vector<PlyExtra> newExtras;
             newExtras.reserve(np);
 
+            std::vector<PlySegment> newSegments;
+            newSegments.reserve(np);
+
             std::vector<size_t> inliers, outliers;
             distances.resize(np, 0.0);
 
@@ -236,7 +239,39 @@ namespace FPCFilter {
                 std::cout << " ?> Done calculating cloud average distance " << diff.count() << "s" << std::endl;
             }
 
-            if (file.hasNormals()) {
+            if (file.hasNormals() && file.hasSegments()) {
+
+                start = std::chrono::steady_clock::now();
+
+                for (size_t i = 0; i < np; ++i)
+                {
+                    if (distances[i] < threshold) {
+
+                        const auto pt = file.points[i];
+                        const auto xs = file.extras[i];
+                        const auto sg = file.segments[i];
+
+                        newPoints.emplace_back(pt.x, pt.y, pt.z, pt.red, pt.green, pt.blue, pt.views);
+                        newExtras.emplace_back(xs.nx, xs.ny, xs.nz);
+                        newSegments.emplace_back(sg.segmentation, sg.segmentationConfidence);
+                    } 
+                    
+                }
+
+                newPoints.shrink_to_fit();
+                newExtras.shrink_to_fit();
+                newSegments.shrink_to_fit();
+
+                file.points = newPoints;
+                file.extras = newExtras;
+                file.segments = newSegments;
+
+                if (this->isVerbose) {
+                    const std::chrono::duration<double> diff = std::chrono::steady_clock::now() - start;
+                    std::cout << " ?> Done filtering points in " << diff.count() << "s" << std::endl;
+                }
+
+            } else if (file.hasNormals() && !file.hasSegments()) {
 
                 start = std::chrono::steady_clock::now();
 
@@ -248,7 +283,7 @@ namespace FPCFilter {
                         const auto xs = file.extras[i];
 
                         newPoints.emplace_back(pt.x, pt.y, pt.z, pt.red, pt.green, pt.blue, pt.views);
-                        newExtras.emplace_back(xs.nx, xs.ny, xs.nz, xs.segmentation, xs.segmentationConfidence);
+                        newExtras.emplace_back(xs.nx, xs.ny, xs.nz);
                     } 
                     
                 }
@@ -264,8 +299,35 @@ namespace FPCFilter {
                     std::cout << " ?> Done filtering points in " << diff.count() << "s" << std::endl;
                 }
 
-            }
-            else {
+            } else if (!file.hasNormals() && file.hasSegments()) {
+
+                start = std::chrono::steady_clock::now();
+
+                for (size_t i = 0; i < np; ++i)
+                {
+                    if (distances[i] < threshold) {
+
+                        const auto pt = file.points[i];
+                        const auto sg = file.segments[i];
+
+                        newPoints.emplace_back(pt.x, pt.y, pt.z, pt.red, pt.green, pt.blue, pt.views);
+                        newSegments.emplace_back(sg.segmentation, sg.segmentationConfidence);
+                    } 
+                    
+                }
+
+                newPoints.shrink_to_fit();
+                newSegments.shrink_to_fit();
+
+                file.points = newPoints;
+                file.segments = newSegments;
+
+                if (this->isVerbose) {
+                    const std::chrono::duration<double> diff = std::chrono::steady_clock::now() - start;
+                    std::cout << " ?> Done filtering points in " << diff.count() << "s" << std::endl;
+                }
+
+            } else {
 
                 start = std::chrono::steady_clock::now();
 
