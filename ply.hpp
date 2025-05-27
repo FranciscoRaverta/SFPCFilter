@@ -30,9 +30,6 @@ namespace FPCFilter {
 		float ny;
 		float nz;
 
-		uint8_t segmentation;
-		float segmentationConfidence;
-
 		PlyExtra(float nx, float ny, float nz) : nx(nx), ny(ny), nz(nz) {}
 	};
 
@@ -370,7 +367,7 @@ namespace FPCFilter {
 
 					reader = std::ifstream(path, std::ifstream::binary);
 				
-					for (auto n = 0; n < 16; n++)
+					for (auto n = 0; n < 14; n++)
 						std::getline(reader, line);
 
 					points.reserve(count);
