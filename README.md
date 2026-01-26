@@ -52,10 +52,11 @@ property float32 ny
 property float32 nz
 property uint8 segmentation
 property float32 segmentationConfidence
+property float32 segmentationExtended
 property uint8 views
 end_header
 ```
-if the source has the segmentation (`segmentation`) and confidence (`segmentationConfidence`), or 
+if the source has the segmentation (`segmentation`), confidence (`segmentationConfidence`) and extended confidence (`segmentationConfidenceExtended`), or 
 ```
 property float32 x
 property float32 y
@@ -95,6 +96,7 @@ property float ny
 property float nz
 property uchar segmentation
 property float segmentationConfidence			
+property float segmentationConfidenceExtended			
 property uchar red
 property uchar blue
 property uchar green
@@ -102,7 +104,7 @@ property uchar views
 end_header
 ```
 
-without `nx`, `ny`, `nz`, `segmentation` or `segmentationConfidence` if the source file has not got them.
+without `nx`, `ny`, `nz`, `segmentation` or `segmentationConfidence` or `segmentationConfidenceExteneded` if the source file has not got them.
 
 -----------------------------------------------------------------------
 
