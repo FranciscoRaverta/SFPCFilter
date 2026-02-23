@@ -38,6 +38,7 @@ namespace FPCFilter {
 		uint8_t segmentation;
 		float segmentationConfidence;
 		float segmentationConfidenceExtended;
+		float segmentationUncertainty;
 
 		PlySegment(uint8_t segmentation, float segmentationConfidence, float segmentationConfidenceExtended, float segmentationUncertainty) : segmentation(segmentation), segmentationConfidence(segmentationConfidence), segmentationConfidenceExtended(segmentationConfidenceExtended), segmentationUncertainty(segmentationUncertainty) {}
 	};
