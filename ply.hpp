@@ -39,7 +39,7 @@ namespace FPCFilter {
 		float segmentationConfidence;
 		float segmentationConfidenceExtended;
 
-		PlySegment(uint8_t segmentation, float segmentationConfidence, float segmentationConfidenceExtended) : segmentation(segmentation), segmentationConfidence(segmentationConfidence), segmentationConfidenceExtended(segmentationConfidenceExtended) {}
+		PlySegment(uint8_t segmentation, float segmentationConfidence, float segmentationConfidenceExtended, float segmentationUncertainty) : segmentation(segmentation), segmentationConfidence(segmentationConfidence), segmentationConfidenceExtended(segmentationConfidenceExtended), segmentationUncertainty(segmentationUncertainty) {}
 	};
 
 	class PlyFile {
@@ -277,6 +277,10 @@ namespace FPCFilter {
 						throw std::invalid_argument("Invalid PLY file (expected 'property float32 segmentationConfidenceExtended')");
 
 					std::getline(reader, line);
+					if (line != "property float32 segmentationUncertainty")
+						throw std::invalid_argument("Invalid PLY file (expected 'property float32 segmentationUncertainty')");
+
+					std::getline(reader, line);
 					if (line != "property uint8 views")
 						throw std::invalid_argument("Invalid PLY file (expected 'property uint8 views')");
 
@@ -286,7 +290,7 @@ namespace FPCFilter {
 
 					reader = std::ifstream(path, std::ifstream::binary);
 				
-					for (auto n = 0; n < 17; n++)
+					for (auto n = 0; n < 18; n++)
 						std::getline(reader, line);
 
 					points.reserve(count);
@@ -304,6 +308,7 @@ namespace FPCFilter {
 							uint8_t segmentation;
 							float segmentationConfidence;
 							float segmentationConfidenceExtended;
+							float segmentationUncertainty;
 							uint8_t views;
 
 							reader.read(reinterpret_cast<char*>(&x), sizeof(float));
@@ -321,13 +326,14 @@ namespace FPCFilter {
 							reader.read(reinterpret_cast<char*>(&segmentation), sizeof(uint8_t));
 							reader.read(reinterpret_cast<char*>(&segmentationConfidence), sizeof(float));
 							reader.read(reinterpret_cast<char*>(&segmentationConfidenceExtended), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&segmentationUncertainty), sizeof(float));
 
 							reader.read(reinterpret_cast<char*>(&views), sizeof(uint8_t));
 
 							if (filter(x, y, z)) {
 								points.emplace_back(x, y, z, red, green, blue, views);
 								extras.emplace_back(nx, ny, nz);
-								segments.emplace_back(segmentation, segmentationConfidence, segmentationConfidenceExtended);
+								segments.emplace_back(segmentation, segmentationConfidence, segmentationConfidenceExtended, segmentationUncertainty);
 							}
 						}
 
@@ -342,6 +348,7 @@ namespace FPCFilter {
 							uint8_t segmentation;
 							float segmentationConfidence;
 							float segmentationConfidenceExtended;
+							float segmentationUncertainty;
 							uint8_t red, green, blue;
 							uint8_t views;
 
@@ -360,12 +367,13 @@ namespace FPCFilter {
 							reader.read(reinterpret_cast<char*>(&segmentation), sizeof(uint8_t));
 							reader.read(reinterpret_cast<char*>(&segmentationConfidence), sizeof(float));
 							reader.read(reinterpret_cast<char*>(&segmentationConfidenceExtended), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&segmentationUncertainty), sizeof(float));
 
 							reader.read(reinterpret_cast<char*>(&views), sizeof(uint8_t));
 
 							points.emplace_back(x, y, z, red, green, blue, views);
 							extras.emplace_back(nx, ny, nz);
-							segments.emplace_back(segmentation, segmentationConfidence, segmentationConfidenceExtended);
+							segments.emplace_back(segmentation, segmentationConfidence, segmentationConfidenceExtended, segmentationUncertainty);
 
 						}
 					}
@@ -481,6 +489,7 @@ namespace FPCFilter {
 				o << "property uchar segmentation" << std::endl;
 				o << "property float segmentationConfidence" << std::endl;
 				o << "property float segmentationConfidenceExtended" << std::endl;
+				o << "property float segmentationUncertainty" << std::endl;
 			}
 			
 			o << "property uchar red" << std::endl;
@@ -509,6 +518,7 @@ namespace FPCFilter {
 					o.write(reinterpret_cast<const char*>(&segment.segmentation), sizeof(uint8_t));
 					o.write(reinterpret_cast<const char*>(&segment.segmentationConfidence), sizeof(float));
 					o.write(reinterpret_cast<const char*>(&segment.segmentationConfidenceExtended), sizeof(float));
+					o.write(reinterpret_cast<const char*>(&segment.segmentationUncertainty), sizeof(float));
 
                     o.write(reinterpret_cast<const char*>(&point.red), sizeof(uint8_t));
                     o.write(reinterpret_cast<const char*>(&point.blue), sizeof(uint8_t));
@@ -554,6 +564,7 @@ namespace FPCFilter {
 					o.write(reinterpret_cast<const char*>(&segment.segmentation), sizeof(uint8_t));
 					o.write(reinterpret_cast<const char*>(&segment.segmentationConfidence), sizeof(float));
 					o.write(reinterpret_cast<const char*>(&segment.segmentationConfidenceExtended), sizeof(float));
+					o.write(reinterpret_cast<const char*>(&segment.segmentationUncertainty), sizeof(float));
 
                     o.write(reinterpret_cast<const char*>(&point.red), sizeof(uint8_t));
                     o.write(reinterpret_cast<const char*>(&point.blue), sizeof(uint8_t));
