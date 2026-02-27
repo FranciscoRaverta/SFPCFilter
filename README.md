@@ -52,11 +52,20 @@ property float32 ny
 property float32 nz
 property uint8 segmentation
 property float32 segmentationConfidence
-property float32 segmentationExtended
+property float32 segmentationConfidencesRecursiveBayesian
+property float32 segmentationConfidencesGeometricMean
+property float32 segmentationConfidencesSumProbabilities
+property float32 segmentationConfidencesDirichlet
+property float32 segmentationConfidencesWeightedDirichlet
+property float32 segmentationUncertaintyRecursiveBayesian
+property float32 segmentationUncertaintyGeometricMean
+property float32 segmentationUncertaintySumProbabilities
+property float32 segmentationUncertaintyDirichlet
+property float32 segmentationUncertaintyWeightedDirichlet
 property uint8 views
 end_header
 ```
-if the source has the segmentation (`segmentation`), confidence (`segmentationConfidence`) and extended confidence (`segmentationConfidenceExtended`), or 
+if the source has the segmentation (`segmentation`), and confidences and uncertainties from various semantic fusion algorithms or 
 ```
 property float32 x
 property float32 y
@@ -96,7 +105,16 @@ property float ny
 property float nz
 property uchar segmentation
 property float segmentationConfidence			
-property float segmentationConfidenceExtended			
+property float32 segmentationConfidencesRecursiveBayesian
+property float32 segmentationConfidencesGeometricMean
+property float32 segmentationConfidencesSumProbabilities
+property float32 segmentationConfidencesDirichlet
+property float32 segmentationConfidencesWeightedDirichlet
+property float32 segmentationUncertaintyRecursiveBayesian
+property float32 segmentationUncertaintyGeometricMean
+property float32 segmentationUncertaintySumProbabilities
+property float32 segmentationUncertaintyDirichlet
+property float32 segmentationUncertaintyWeightedDirichlet	
 property uchar red
 property uchar blue
 property uchar green

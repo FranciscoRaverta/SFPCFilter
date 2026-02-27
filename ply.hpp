@@ -37,10 +37,34 @@ namespace FPCFilter {
 	public:
 		uint8_t segmentation;
 		float segmentationConfidence;
-		float segmentationConfidenceExtended;
-		float segmentationUncertainty;
+		float segmentationConfidencesRecursiveBayesian;
+		float segmentationConfidencesGeometricMean;
+		float segmentationConfidencesSumProbabilities;
+		float segmentationConfidencesDirichlet;
+		float segmentationConfidencesWeightedDirichlet;
+		float segmentationUncertaintyRecursiveBayesian;
+		float segmentationUncertaintyGeometricMean;
+		float segmentationUncertaintySumProbabilities;
+		float segmentationUncertaintyDirichlet;
+		float segmentationUncertaintyWeightedDirichlet;
 
-		PlySegment(uint8_t segmentation, float segmentationConfidence, float segmentationConfidenceExtended, float segmentationUncertainty) : segmentation(segmentation), segmentationConfidence(segmentationConfidence), segmentationConfidenceExtended(segmentationConfidenceExtended), segmentationUncertainty(segmentationUncertainty) {}
+		PlySegment(uint8_t segmentation, float segmentationConfidence, float segmentationConfidencesRecursiveBayesian,
+			float segmentationConfidencesGeometricMean, float segmentationConfidencesSumProbabilities, 
+			float segmentationConfidencesDirichlet, float segmentationConfidencesWeightedDirichlet, 
+			float segmentationUncertaintyRecursiveBayesian, float segmentationUncertaintyGeometricMean, 
+			float segmentationUncertaintySumProbabilities, float segmentationUncertaintyDirichlet, 
+			float segmentationUncertaintyWeightedDirichlet) : segmentation(segmentation), 
+			segmentationConfidence(segmentationConfidence), 
+			segmentationConfidencesRecursiveBayesian(segmentationConfidencesRecursiveBayesian), 
+			segmentationConfidencesGeometricMean(segmentationConfidencesGeometricMean), 
+			segmentationConfidencesSumProbabilities(segmentationConfidencesSumProbabilities), 
+			segmentationConfidencesDirichlet(segmentationConfidencesDirichlet), 
+			segmentationConfidencesWeightedDirichlet(segmentationConfidencesWeightedDirichlet), 
+			segmentationUncertaintyRecursiveBayesian(segmentationUncertaintyRecursiveBayesian), 
+			segmentationUncertaintyGeometricMean(segmentationUncertaintyGeometricMean), 
+			segmentationUncertaintySumProbabilities(segmentationUncertaintySumProbabilities), 
+			segmentationUncertaintyDirichlet(segmentationUncertaintyDirichlet),
+			segmentationUncertaintyWeightedDirichlet(segmentationUncertaintyWeightedDirichlet) {}
 	};
 
 	class PlyFile {
@@ -210,7 +234,16 @@ namespace FPCFilter {
 					property float32 nz
 					property uint8 segmentation
 					property float32 segmentationConfidence
-					property float32 segmentationConfidenceExtended
+					property float32 segmentationConfidencesRecursiveBayesian
+					property float32 segmentationConfidencesGeometricMean
+					property float32 segmentationConfidencesSumProbabilities
+					property float32 segmentationConfidencesDirichlet
+					property float32 segmentationConfidencesWeightedDirichlet
+					property float32 segmentationUncertaintyRecursiveBayesian
+					property float32 segmentationUncertaintyGeometricMean
+					property float32 segmentationUncertaintySumProbabilities
+					property float32 segmentationUncertaintyDirichlet
+					property float32 segmentationUncertaintyWeightedDirichlet
 					property uint8 views
 					end_header
 				*/
@@ -274,12 +307,44 @@ namespace FPCFilter {
 						throw std::invalid_argument("Invalid PLY file (expected 'property float32 segmentationConfidence')");
 					
 					std::getline(reader, line);
-					if (line != "property float32 segmentationConfidenceExtended")
-						throw std::invalid_argument("Invalid PLY file (expected 'property float32 segmentationConfidenceExtended')");
+					if (line != "property float32 segmentationConfidencesRecursiveBayesian")
+						throw std::invalid_argument("Invalid PLY file (expected 'property float32 segmentationConfidencesRecursiveBayesian')");
 
 					std::getline(reader, line);
-					if (line != "property float32 segmentationUncertainty")
-						throw std::invalid_argument("Invalid PLY file (expected 'property float32 segmentationUncertainty')");
+					if (line != "property float32 segmentationConfidencesGeometricMean")
+						throw std::invalid_argument("Invalid PLY file (expected 'property float32 segmentationConfidencesGeometricMean')");
+
+					std::getline(reader, line);
+					if (line != "property float32 segmentationConfidencesSumProbabilities")
+						throw std::invalid_argument("Invalid PLY file (expected 'property float32 segmentationConfidencesSumProbabilities')");
+
+					std::getline(reader, line);
+					if (line != "property float32 segmentationConfidencesDirichlet")
+						throw std::invalid_argument("Invalid PLY file (expected 'property float32 segmentationConfidencesDirichlet')");
+
+					std::getline(reader, line);
+					if (line != "property float32 segmentationConfidencesWeightedDirichlet")
+						throw std::invalid_argument("Invalid PLY file (expected 'property float32 segmentationConfidencesWeightedDirichlet')");
+
+					std::getline(reader, line);
+					if (line != "property float32 segmentationUncertaintyRecursiveBayesian")
+						throw std::invalid_argument("Invalid PLY file (expected 'property float32 segmentationUncertaintyRecursiveBayesian')");
+
+					std::getline(reader, line);
+					if (line != "property float32 segmentationUncertaintyGeometricMean")
+						throw std::invalid_argument("Invalid PLY file (expected 'property float32 segmentationUncertaintyGeometricMean')");
+
+					std::getline(reader, line);
+					if (line != "property float32 segmentationUncertaintySumProbabilities")
+						throw std::invalid_argument("Invalid PLY file (expected 'property float32 segmentationUncertaintySumProbabilities')");
+
+					std::getline(reader, line);
+					if (line != "property float32 segmentationUncertaintyDirichlet")
+						throw std::invalid_argument("Invalid PLY file (expected 'property float32 segmentationUncertaintyDirichlet')");
+
+					std::getline(reader, line);
+					if (line != "property float32 segmentationUncertaintyWeightedDirichlet")
+						throw std::invalid_argument("Invalid PLY file (expected 'property float32 segmentationUncertaintyWeightedDirichlet')");
 
 					std::getline(reader, line);
 					if (line != "property uint8 views")
@@ -308,8 +373,16 @@ namespace FPCFilter {
 							uint8_t red, green, blue;
 							uint8_t segmentation;
 							float segmentationConfidence;
-							float segmentationConfidenceExtended;
-							float segmentationUncertainty;
+							float segmentationConfidencesRecursiveBayesian;
+							float segmentationConfidencesGeometricMean;
+							float segmentationConfidencesSumProbabilities;
+							float segmentationConfidencesDirichlet;
+							float segmentationConfidencesWeightedDirichlet;
+							float segmentationUncertaintyRecursiveBayesian;
+							float segmentationUncertaintyGeometricMean;
+							float segmentationUncertaintySumProbabilities;
+							float segmentationUncertaintyDirichlet;
+							float segmentationUncertaintyWeightedDirichlet;
 							uint8_t views;
 
 							reader.read(reinterpret_cast<char*>(&x), sizeof(float));
@@ -326,15 +399,28 @@ namespace FPCFilter {
 
 							reader.read(reinterpret_cast<char*>(&segmentation), sizeof(uint8_t));
 							reader.read(reinterpret_cast<char*>(&segmentationConfidence), sizeof(float));
-							reader.read(reinterpret_cast<char*>(&segmentationConfidenceExtended), sizeof(float));
-							reader.read(reinterpret_cast<char*>(&segmentationUncertainty), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&segmentationConfidencesRecursiveBayesian), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&segmentationConfidencesGeometricMean), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&segmentationConfidencesSumProbabilities), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&segmentationConfidencesDirichlet), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&segmentationConfidencesWeightedDirichlet), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&segmentationUncertaintyRecursiveBayesian), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&segmentationUncertaintyGeometricMean), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&segmentationUncertaintySumProbabilities), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&segmentationUncertaintyDirichlet), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&segmentationUncertaintyWeightedDirichlet), sizeof(float));
 
 							reader.read(reinterpret_cast<char*>(&views), sizeof(uint8_t));
 
 							if (filter(x, y, z)) {
 								points.emplace_back(x, y, z, red, green, blue, views);
 								extras.emplace_back(nx, ny, nz);
-								segments.emplace_back(segmentation, segmentationConfidence, segmentationConfidenceExtended, segmentationUncertainty);
+								segments.emplace_back(segmentation, segmentationConfidence, 
+									segmentationConfidencesRecursiveBayesian, segmentationConfidencesGeometricMean,
+									segmentationConfidencesSumProbabilities, segmentationConfidencesDirichlet,
+									segmentationConfidencesWeightedDirichlet, segmentationUncertaintyRecursiveBayesian,
+									segmentationUncertaintyGeometricMean, segmentationUncertaintySumProbabilities,
+									segmentationUncertaintyDirichlet, segmentationUncertaintyWeightedDirichlet);
 							}
 						}
 
@@ -348,8 +434,16 @@ namespace FPCFilter {
 							float nx, ny, nz;
 							uint8_t segmentation;
 							float segmentationConfidence;
-							float segmentationConfidenceExtended;
-							float segmentationUncertainty;
+							float segmentationConfidencesRecursiveBayesian;
+							float segmentationConfidencesGeometricMean;
+							float segmentationConfidencesSumProbabilities;
+							float segmentationConfidencesDirichlet;
+							float segmentationConfidencesWeightedDirichlet;
+							float segmentationUncertaintyRecursiveBayesian;
+							float segmentationUncertaintyGeometricMean;
+							float segmentationUncertaintySumProbabilities;
+							float segmentationUncertaintyDirichlet;
+							float segmentationUncertaintyWeightedDirichlet;
 							uint8_t red, green, blue;
 							uint8_t views;
 
@@ -367,14 +461,27 @@ namespace FPCFilter {
 
 							reader.read(reinterpret_cast<char*>(&segmentation), sizeof(uint8_t));
 							reader.read(reinterpret_cast<char*>(&segmentationConfidence), sizeof(float));
-							reader.read(reinterpret_cast<char*>(&segmentationConfidenceExtended), sizeof(float));
-							reader.read(reinterpret_cast<char*>(&segmentationUncertainty), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&segmentationConfidencesRecursiveBayesian), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&segmentationConfidencesGeometricMean), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&segmentationConfidencesSumProbabilities), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&segmentationConfidencesDirichlet), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&segmentationConfidencesWeightedDirichlet), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&segmentationUncertaintyRecursiveBayesian), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&segmentationUncertaintyGeometricMean), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&segmentationUncertaintySumProbabilities), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&segmentationUncertaintyDirichlet), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&segmentationUncertaintyWeightedDirichlet), sizeof(float));
 
 							reader.read(reinterpret_cast<char*>(&views), sizeof(uint8_t));
 
 							points.emplace_back(x, y, z, red, green, blue, views);
 							extras.emplace_back(nx, ny, nz);
-							segments.emplace_back(segmentation, segmentationConfidence, segmentationConfidenceExtended, segmentationUncertainty);
+							segments.emplace_back(segmentation, segmentationConfidence, 
+									segmentationConfidencesRecursiveBayesian, segmentationConfidencesGeometricMean,
+									segmentationConfidencesSumProbabilities, segmentationConfidencesDirichlet,
+									segmentationConfidencesWeightedDirichlet, segmentationUncertaintyRecursiveBayesian,
+									segmentationUncertaintyGeometricMean, segmentationUncertaintySumProbabilities,
+									segmentationUncertaintyDirichlet, segmentationUncertaintyWeightedDirichlet);
 
 						}
 					}
@@ -489,8 +596,16 @@ namespace FPCFilter {
 			{
 				o << "property uchar segmentation" << std::endl;
 				o << "property float segmentationConfidence" << std::endl;
-				o << "property float segmentationConfidenceExtended" << std::endl;
-				o << "property float segmentationUncertainty" << std::endl;
+				o << "property float segmentationConfidencesRecursiveBayesian" << std::endl;
+				o << "property float segmentationConfidencesGeometricMean" << std::endl;
+				o << "property float segmentationConfidencesSumProbabilities" << std::endl;
+				o << "property float segmentationConfidencesDirichlet" << std::endl;
+				o << "property float segmentationConfidencesWeightedDirichlet" << std::endl;
+				o << "property float segmentationUncertaintyRecursiveBayesian" << std::endl;
+				o << "property float segmentationUncertaintyGeometricMean" << std::endl;
+				o << "property float segmentationUncertaintySumProbabilities" << std::endl;
+				o << "property float segmentationUncertaintyDirichlet" << std::endl;
+				o << "property float segmentationUncertaintyWeightedDirichlet" << std::endl;
 			}
 			
 			o << "property uchar red" << std::endl;
@@ -518,8 +633,16 @@ namespace FPCFilter {
 
 					o.write(reinterpret_cast<const char*>(&segment.segmentation), sizeof(uint8_t));
 					o.write(reinterpret_cast<const char*>(&segment.segmentationConfidence), sizeof(float));
-					o.write(reinterpret_cast<const char*>(&segment.segmentationConfidenceExtended), sizeof(float));
-					o.write(reinterpret_cast<const char*>(&segment.segmentationUncertainty), sizeof(float));
+					o.write(reinterpret_cast<const char*>(&segment.segmentationConfidencesRecursiveBayesian), sizeof(float));
+					o.write(reinterpret_cast<const char*>(&segment.segmentationConfidencesGeometricMean), sizeof(float));
+					o.write(reinterpret_cast<const char*>(&segment.segmentationConfidencesSumProbabilities), sizeof(float));
+					o.write(reinterpret_cast<const char*>(&segment.segmentationConfidencesDirichlet), sizeof(float));
+					o.write(reinterpret_cast<const char*>(&segment.segmentationConfidencesWeightedDirichlet), sizeof(float));
+					o.write(reinterpret_cast<const char*>(&segment.segmentationUncertaintyRecursiveBayesian), sizeof(float));
+					o.write(reinterpret_cast<const char*>(&segment.segmentationUncertaintyGeometricMean), sizeof(float));
+					o.write(reinterpret_cast<const char*>(&segment.segmentationUncertaintySumProbabilities), sizeof(float));
+					o.write(reinterpret_cast<const char*>(&segment.segmentationUncertaintyDirichlet), sizeof(float));
+					o.write(reinterpret_cast<const char*>(&segment.segmentationUncertaintyWeightedDirichlet), sizeof(float));
 
                     o.write(reinterpret_cast<const char*>(&point.red), sizeof(uint8_t));
                     o.write(reinterpret_cast<const char*>(&point.blue), sizeof(uint8_t));
@@ -564,8 +687,16 @@ namespace FPCFilter {
 
 					o.write(reinterpret_cast<const char*>(&segment.segmentation), sizeof(uint8_t));
 					o.write(reinterpret_cast<const char*>(&segment.segmentationConfidence), sizeof(float));
-					o.write(reinterpret_cast<const char*>(&segment.segmentationConfidenceExtended), sizeof(float));
-					o.write(reinterpret_cast<const char*>(&segment.segmentationUncertainty), sizeof(float));
+					o.write(reinterpret_cast<const char*>(&segment.segmentationConfidencesRecursiveBayesian), sizeof(float));
+					o.write(reinterpret_cast<const char*>(&segment.segmentationConfidencesGeometricMean), sizeof(float));
+					o.write(reinterpret_cast<const char*>(&segment.segmentationConfidencesSumProbabilities), sizeof(float));
+					o.write(reinterpret_cast<const char*>(&segment.segmentationConfidencesDirichlet), sizeof(float));
+					o.write(reinterpret_cast<const char*>(&segment.segmentationConfidencesWeightedDirichlet), sizeof(float));
+					o.write(reinterpret_cast<const char*>(&segment.segmentationUncertaintyRecursiveBayesian), sizeof(float));
+					o.write(reinterpret_cast<const char*>(&segment.segmentationUncertaintyGeometricMean), sizeof(float));
+					o.write(reinterpret_cast<const char*>(&segment.segmentationUncertaintySumProbabilities), sizeof(float));
+					o.write(reinterpret_cast<const char*>(&segment.segmentationUncertaintyDirichlet), sizeof(float));
+					o.write(reinterpret_cast<const char*>(&segment.segmentationUncertaintyWeightedDirichlet), sizeof(float));
 
                     o.write(reinterpret_cast<const char*>(&point.red), sizeof(uint8_t));
                     o.write(reinterpret_cast<const char*>(&point.blue), sizeof(uint8_t));

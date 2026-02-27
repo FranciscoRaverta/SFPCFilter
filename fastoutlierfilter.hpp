@@ -253,7 +253,12 @@ namespace FPCFilter {
 
                         newPoints.emplace_back(pt.x, pt.y, pt.z, pt.red, pt.green, pt.blue, pt.views);
                         newExtras.emplace_back(xs.nx, xs.ny, xs.nz);
-                        newSegments.emplace_back(sg.segmentation, sg.segmentationConfidence, sg.segmentationConfidenceExtended, sg.segmentationUncertainty);
+                        newSegments.emplace_back(sg.segmentation, sg.segmentationConfidence, 
+                            sg.segmentationConfidencesRecursiveBayesian, sg.segmentationConfidencesGeometricMean
+                            sg.segmentationConfidencesSumProbabilities, sg.segmentationConfidencesDirichlet, 
+                            sg.segmentationConfidencesWeightedDirichlet, sg.segmentationUncertaintyRecursiveBayesian, 
+                            sg.segmentationUncertaintyGeometricMean, sg.segmentationUncertaintySumProbabilities, 
+                            sg.segmentationUncertaintyDirichlet, sg.segmentationUncertaintyWeightedDirichlet);
                     } 
                     
                 }
@@ -311,7 +316,12 @@ namespace FPCFilter {
                         const auto sg = file.segments[i];
 
                         newPoints.emplace_back(pt.x, pt.y, pt.z, pt.red, pt.green, pt.blue, pt.views);
-                        newSegments.emplace_back(sg.segmentation, sg.segmentationConfidence, sg.segmentationConfidenceExtended, sg.segmentationUncertainty);
+                        newSegments.emplace_back(sg.segmentation, sg.segmentationConfidence, 
+                            sg.segmentationConfidencesRecursiveBayesian, sg.segmentationConfidencesGeometricMean
+                            sg.segmentationConfidencesSumProbabilities, sg.segmentationConfidencesDirichlet, 
+                            sg.segmentationConfidencesWeightedDirichlet, sg.segmentationUncertaintyRecursiveBayesian, 
+                            sg.segmentationUncertaintyGeometricMean, sg.segmentationUncertaintySumProbabilities, 
+                            sg.segmentationUncertaintyDirichlet, sg.segmentationUncertaintyWeightedDirichlet);
                     } 
                     
                 }
