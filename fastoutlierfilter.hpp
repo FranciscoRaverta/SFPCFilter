@@ -254,7 +254,7 @@ namespace FPCFilter {
                         newPoints.emplace_back(pt.x, pt.y, pt.z, pt.red, pt.green, pt.blue, pt.views);
                         newExtras.emplace_back(xs.nx, xs.ny, xs.nz);
                         newSegments.emplace_back(sg.segmentation, sg.segmentationConfidence, 
-                            sg.segmentationConfidencesRecursiveBayesian, sg.segmentationConfidencesGeometricMean
+                            sg.segmentationConfidencesRecursiveBayesian, sg.segmentationConfidencesGeometricMean,
                             sg.segmentationConfidencesSumProbabilities, sg.segmentationConfidencesDirichlet, 
                             sg.segmentationConfidencesWeightedDirichlet, sg.segmentationUncertaintyRecursiveBayesian, 
                             sg.segmentationUncertaintyGeometricMean, sg.segmentationUncertaintySumProbabilities, 
@@ -317,7 +317,7 @@ namespace FPCFilter {
 
                         newPoints.emplace_back(pt.x, pt.y, pt.z, pt.red, pt.green, pt.blue, pt.views);
                         newSegments.emplace_back(sg.segmentation, sg.segmentationConfidence, 
-                            sg.segmentationConfidencesRecursiveBayesian, sg.segmentationConfidencesGeometricMean
+                            sg.segmentationConfidencesRecursiveBayesian, sg.segmentationConfidencesGeometricMean,
                             sg.segmentationConfidencesSumProbabilities, sg.segmentationConfidencesDirichlet, 
                             sg.segmentationConfidencesWeightedDirichlet, sg.segmentationUncertaintyRecursiveBayesian, 
                             sg.segmentationUncertaintyGeometricMean, sg.segmentationUncertaintySumProbabilities, 
