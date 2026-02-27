@@ -356,7 +356,7 @@ namespace FPCFilter {
 
 					reader = std::ifstream(path, std::ifstream::binary);
 				
-					for (auto n = 0; n < 18; n++)
+					for (auto n = 0; n < 26; n++)
 						std::getline(reader, line);
 
 					points.reserve(count);
