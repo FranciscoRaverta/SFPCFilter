@@ -350,6 +350,10 @@ namespace FPCFilter {
 						throw std::invalid_argument("Invalid PLY file (expected 'property float32 segmentationUncertaintyWeightedDirichlet')");
 
 					std::getline(reader, line);
+					if (line != "property float32 covarianceTraces")
+						throw std::invalid_argument("Invalid PLY file (expected 'property float32 covarianceTraces')");
+
+					std::getline(reader, line);
 					if (line != "property uint8 views")
 						throw std::invalid_argument("Invalid PLY file (expected 'property uint8 views')");
 
