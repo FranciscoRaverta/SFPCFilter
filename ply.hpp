@@ -47,13 +47,14 @@ namespace FPCFilter {
 		float segmentationUncertaintySumProbabilities;
 		float segmentationUncertaintyDirichlet;
 		float segmentationUncertaintyWeightedDirichlet;
+		float covarianceTraces;
 
 		PlySegment(uint8_t segmentation, float segmentationConfidence, float segmentationConfidencesRecursiveBayesian,
 			float segmentationConfidencesGeometricMean, float segmentationConfidencesSumProbabilities, 
 			float segmentationConfidencesDirichlet, float segmentationConfidencesWeightedDirichlet, 
 			float segmentationUncertaintyRecursiveBayesian, float segmentationUncertaintyGeometricMean, 
 			float segmentationUncertaintySumProbabilities, float segmentationUncertaintyDirichlet, 
-			float segmentationUncertaintyWeightedDirichlet) : segmentation(segmentation), 
+			float segmentationUncertaintyWeightedDirichlet, float covarianceTraces) : segmentation(segmentation), 
 			segmentationConfidence(segmentationConfidence), 
 			segmentationConfidencesRecursiveBayesian(segmentationConfidencesRecursiveBayesian), 
 			segmentationConfidencesGeometricMean(segmentationConfidencesGeometricMean), 
@@ -64,7 +65,8 @@ namespace FPCFilter {
 			segmentationUncertaintyGeometricMean(segmentationUncertaintyGeometricMean), 
 			segmentationUncertaintySumProbabilities(segmentationUncertaintySumProbabilities), 
 			segmentationUncertaintyDirichlet(segmentationUncertaintyDirichlet),
-			segmentationUncertaintyWeightedDirichlet(segmentationUncertaintyWeightedDirichlet) {}
+			segmentationUncertaintyWeightedDirichlet(segmentationUncertaintyWeightedDirichlet,
+			covarianceTraces(covarianceTraces)) {}
 	};
 
 	class PlyFile {
@@ -244,6 +246,7 @@ namespace FPCFilter {
 					property float32 segmentationUncertaintySumProbabilities
 					property float32 segmentationUncertaintyDirichlet
 					property float32 segmentationUncertaintyWeightedDirichlet
+					property float32 covarianceTraces
 					property uint8 views
 					end_header
 				*/
@@ -356,7 +359,7 @@ namespace FPCFilter {
 
 					reader = std::ifstream(path, std::ifstream::binary);
 				
-					for (auto n = 0; n < 26; n++)
+					for (auto n = 0; n < 27; n++)
 						std::getline(reader, line);
 
 					points.reserve(count);
@@ -383,6 +386,7 @@ namespace FPCFilter {
 							float segmentationUncertaintySumProbabilities;
 							float segmentationUncertaintyDirichlet;
 							float segmentationUncertaintyWeightedDirichlet;
+							float covarianceTraces;
 							uint8_t views;
 
 							reader.read(reinterpret_cast<char*>(&x), sizeof(float));
@@ -409,6 +413,7 @@ namespace FPCFilter {
 							reader.read(reinterpret_cast<char*>(&segmentationUncertaintySumProbabilities), sizeof(float));
 							reader.read(reinterpret_cast<char*>(&segmentationUncertaintyDirichlet), sizeof(float));
 							reader.read(reinterpret_cast<char*>(&segmentationUncertaintyWeightedDirichlet), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&covarianceTraces), sizeof(float));
 
 							reader.read(reinterpret_cast<char*>(&views), sizeof(uint8_t));
 
@@ -420,7 +425,7 @@ namespace FPCFilter {
 									segmentationConfidencesSumProbabilities, segmentationConfidencesDirichlet,
 									segmentationConfidencesWeightedDirichlet, segmentationUncertaintyRecursiveBayesian,
 									segmentationUncertaintyGeometricMean, segmentationUncertaintySumProbabilities,
-									segmentationUncertaintyDirichlet, segmentationUncertaintyWeightedDirichlet);
+									segmentationUncertaintyDirichlet, segmentationUncertaintyWeightedDirichlet, covarianceTraces);
 							}
 						}
 
@@ -444,6 +449,7 @@ namespace FPCFilter {
 							float segmentationUncertaintySumProbabilities;
 							float segmentationUncertaintyDirichlet;
 							float segmentationUncertaintyWeightedDirichlet;
+							float covarianceTraces;
 							uint8_t red, green, blue;
 							uint8_t views;
 
@@ -471,6 +477,7 @@ namespace FPCFilter {
 							reader.read(reinterpret_cast<char*>(&segmentationUncertaintySumProbabilities), sizeof(float));
 							reader.read(reinterpret_cast<char*>(&segmentationUncertaintyDirichlet), sizeof(float));
 							reader.read(reinterpret_cast<char*>(&segmentationUncertaintyWeightedDirichlet), sizeof(float));
+							reader.read(reinterpret_cast<char*>(&covarianceTraces), sizeof(float));
 
 							reader.read(reinterpret_cast<char*>(&views), sizeof(uint8_t));
 
@@ -481,7 +488,7 @@ namespace FPCFilter {
 									segmentationConfidencesSumProbabilities, segmentationConfidencesDirichlet,
 									segmentationConfidencesWeightedDirichlet, segmentationUncertaintyRecursiveBayesian,
 									segmentationUncertaintyGeometricMean, segmentationUncertaintySumProbabilities,
-									segmentationUncertaintyDirichlet, segmentationUncertaintyWeightedDirichlet);
+									segmentationUncertaintyDirichlet, segmentationUncertaintyWeightedDirichlet, covarianceTraces);
 
 						}
 					}
@@ -606,6 +613,7 @@ namespace FPCFilter {
 				o << "property float segmentationUncertaintySumProbabilities" << std::endl;
 				o << "property float segmentationUncertaintyDirichlet" << std::endl;
 				o << "property float segmentationUncertaintyWeightedDirichlet" << std::endl;
+				o << "property float covarianceTraces" << std::endl;
 			}
 			
 			o << "property uchar red" << std::endl;
@@ -643,6 +651,7 @@ namespace FPCFilter {
 					o.write(reinterpret_cast<const char*>(&segment.segmentationUncertaintySumProbabilities), sizeof(float));
 					o.write(reinterpret_cast<const char*>(&segment.segmentationUncertaintyDirichlet), sizeof(float));
 					o.write(reinterpret_cast<const char*>(&segment.segmentationUncertaintyWeightedDirichlet), sizeof(float));
+					o.write(reinterpret_cast<const char*>(&segment.covarianceTraces), sizeof(float));
 
                     o.write(reinterpret_cast<const char*>(&point.red), sizeof(uint8_t));
                     o.write(reinterpret_cast<const char*>(&point.blue), sizeof(uint8_t));
@@ -697,6 +706,7 @@ namespace FPCFilter {
 					o.write(reinterpret_cast<const char*>(&segment.segmentationUncertaintySumProbabilities), sizeof(float));
 					o.write(reinterpret_cast<const char*>(&segment.segmentationUncertaintyDirichlet), sizeof(float));
 					o.write(reinterpret_cast<const char*>(&segment.segmentationUncertaintyWeightedDirichlet), sizeof(float));
+					o.write(reinterpret_cast<const char*>(&segment.covarianceTraces), sizeof(float));
 
                     o.write(reinterpret_cast<const char*>(&point.red), sizeof(uint8_t));
                     o.write(reinterpret_cast<const char*>(&point.blue), sizeof(uint8_t));

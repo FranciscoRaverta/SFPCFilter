@@ -258,7 +258,7 @@ namespace FPCFilter {
                             sg.segmentationConfidencesSumProbabilities, sg.segmentationConfidencesDirichlet, 
                             sg.segmentationConfidencesWeightedDirichlet, sg.segmentationUncertaintyRecursiveBayesian, 
                             sg.segmentationUncertaintyGeometricMean, sg.segmentationUncertaintySumProbabilities, 
-                            sg.segmentationUncertaintyDirichlet, sg.segmentationUncertaintyWeightedDirichlet);
+                            sg.segmentationUncertaintyDirichlet, sg.segmentationUncertaintyWeightedDirichlet, sg.covarianceTraces);
                     } 
                     
                 }
@@ -321,7 +321,7 @@ namespace FPCFilter {
                             sg.segmentationConfidencesSumProbabilities, sg.segmentationConfidencesDirichlet, 
                             sg.segmentationConfidencesWeightedDirichlet, sg.segmentationUncertaintyRecursiveBayesian, 
                             sg.segmentationUncertaintyGeometricMean, sg.segmentationUncertaintySumProbabilities, 
-                            sg.segmentationUncertaintyDirichlet, sg.segmentationUncertaintyWeightedDirichlet);
+                            sg.segmentationUncertaintyDirichlet, sg.segmentationUncertaintyWeightedDirichlet, sg.covarianceTraces);
                     } 
                     
                 }
