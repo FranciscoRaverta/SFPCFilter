@@ -65,8 +65,8 @@ namespace FPCFilter {
 			segmentationUncertaintyGeometricMean(segmentationUncertaintyGeometricMean), 
 			segmentationUncertaintySumProbabilities(segmentationUncertaintySumProbabilities), 
 			segmentationUncertaintyDirichlet(segmentationUncertaintyDirichlet),
-			segmentationUncertaintyWeightedDirichlet(segmentationUncertaintyWeightedDirichlet,
-			covarianceTraces(covarianceTraces)) {}
+			segmentationUncertaintyWeightedDirichlet(segmentationUncertaintyWeightedDirichlet),
+			covarianceTraces(covarianceTraces) {}
 	};
 
 	class PlyFile {
